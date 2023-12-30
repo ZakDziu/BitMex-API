@@ -1,4 +1,4 @@
-# Welcome to CRM System!
+# Welcome to BitMex Api Integration!
 
 ## To start the project you need to do the following steps:
 1. Create access and refresh keys
