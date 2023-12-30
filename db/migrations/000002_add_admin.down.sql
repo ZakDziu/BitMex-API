@@ -1,0 +1,1 @@
+delete from auth_users WHERE id='200ea0d1-0699-43d9-9db9-9c22a8b426f1'

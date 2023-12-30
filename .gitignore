@@ -1,0 +1,6 @@
+coverage.*
+*.env
+*.pem
+*.DS_Store
+.database
+.idea

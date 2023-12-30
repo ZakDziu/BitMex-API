@@ -1,0 +1,251 @@
+definitions:
+  auth.RegistrationResponse:
+    properties:
+      status:
+        type: string
+    type: object
+  authmiddleware.Tokens:
+    properties:
+      accessToken:
+        type: string
+      refreshToken:
+        type: string
+    type: object
+  errors.UIResponseErrorBadRequest:
+    properties:
+      code:
+        example: 400
+        type: integer
+      message:
+        example: request invalid body
+        type: string
+    type: object
+  model.AuthUser:
+    properties:
+      password:
+        type: string
+      role:
+        $ref: '#/definitions/model.UserRole'
+      username:
+        type: string
+    type: object
+  model.ChangePassword:
+    properties:
+      new_password:
+        type: string
+      old_password:
+        type: string
+    type: object
+  model.User:
+    type: object
+  model.UserRole:
+    enum:
+    - ADMIN
+    - BASE
+    type: string
+    x-enum-varnames:
+    - AdminUserRole
+    - BaseUserRole
+  subscription.Request:
+    properties:
+      action:
+        $ref: '#/definitions/subscription.SubscriptionAction'
+      symbols:
+        items:
+          type: string
+        type: array
+    type: object
+  subscription.Response:
+    properties:
+      error:
+        type: string
+      success:
+        type: boolean
+    type: object
+  subscription.SubscriptionAction:
+    enum:
+    - subscribe
+    - unsubscribe
+    type: string
+    x-enum-varnames:
+    - Subscribe
+    - Unsubscribe
+info:
+  contact: {}
+  description: All handlers for the CRM System API
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: https://tos.santoshk.dev
+  title: CRM System API
+  version: "1.0"
+paths:
+  /api/v1/bit-mex/subscription:
+    patch:
+      parameters:
+      - description: Subscription Request
+        in: body
+        name: User
+        required: true
+        schema:
+          $ref: '#/definitions/subscription.Request'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/subscription.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.UIResponseErrorBadRequest'
+      security:
+      - ApiKeyAuth: []
+      summary: subscribe or unsubscribe on bitmex price update
+      tags:
+      - User
+  /api/v1/change-password:
+    patch:
+      parameters:
+      - description: Change Password
+        in: body
+        name: ChangePassword
+        required: true
+        schema:
+          $ref: '#/definitions/model.ChangePassword'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/authmiddleware.Tokens'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.UIResponseErrorBadRequest'
+      summary: user change password
+      tags:
+      - Auth
+  /api/v1/login:
+    post:
+      parameters:
+      - description: User Info
+        in: body
+        name: userInfo
+        required: true
+        schema:
+          $ref: '#/definitions/model.AuthUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/authmiddleware.Tokens'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.UIResponseErrorBadRequest'
+      summary: user login
+      tags:
+      - Auth
+  /api/v1/refresh:
+    post:
+      parameters:
+      - description: Tokens
+        in: body
+        name: token
+        required: true
+        schema:
+          $ref: '#/definitions/authmiddleware.Tokens'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/authmiddleware.Tokens'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.UIResponseErrorBadRequest'
+      summary: user refresh token
+      tags:
+      - Auth
+  /api/v1/registration:
+    post:
+      description: 'available user roles: ADMIN/BASE'
+      parameters:
+      - description: User Info
+        in: body
+        name: userInfo
+        required: true
+        schema:
+          $ref: '#/definitions/model.AuthUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.RegistrationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.UIResponseErrorBadRequest'
+      security:
+      - ApiKeyAuth: []
+      summary: user registration
+      tags:
+      - Auth
+  /api/v1/user:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.UIResponseErrorBadRequest'
+      security:
+      - ApiKeyAuth: []
+      summary: get user info
+      tags:
+      - User
+  /api/v1/user/update-info:
+    patch:
+      parameters:
+      - description: User
+        in: body
+        name: User
+        required: true
+        schema:
+          $ref: '#/definitions/model.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.UIResponseErrorBadRequest'
+      security:
+      - ApiKeyAuth: []
+      summary: update user info
+      tags:
+      - User
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

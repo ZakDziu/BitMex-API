@@ -1,0 +1,48 @@
+run:
+  concurrency: 8
+  deadline: 10m
+  issues-exit-code: 1
+  tests: false
+
+linters-settings:
+  govet:
+    check-shadowing: true
+  maligned:
+    suggest-new: true
+  goconst:
+    min-len: 2
+    min-occurrences: 2
+  depguard:
+    list-type: blacklist
+    packages:
+      # We not allow logrus
+      - github.com/sirupsen/logrus
+  misspell:
+    locale: US
+
+linters:
+  enable-all: true
+  disable:
+    - golint
+    - scopelint
+    - interfacer
+    - gci
+    - wsl
+    - gofumpt
+    - exhaustivestruct
+    - exhaustive
+    - maligned
+    - funlen
+    - wrapcheck
+    - godot
+    - gochecknoglobals
+    - tagliatelle
+    - exhaustruct
+    - nonamedreturns
+    - nolintlint
+    - depguard
+issues:
+  exclude-rules:
+    - linters:
+        - varnamelen
+      text: l

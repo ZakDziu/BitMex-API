@@ -1,0 +1,32 @@
+version: '3'
+services:
+  bitmex-api:
+    build: ./
+    command: sh -c "./wait-for-postgres.sh postgres && /go/bin/migrate -path=db/migrations -database 'postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB?sslmode=disable' up && ./bitmex-api"
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    networks:
+      - mynetwork
+    volumes:
+      - ./db/migrations:/app/db/migrations
+
+  postgres:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    volumes:
+      - db:/var/lib/postgresql/data
+    env_file:
+      - .env
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
+
+volumes:
+  db:
