@@ -1,11 +1,13 @@
 package api
 
 import (
+	"encoding/json"
 	"net/http"
 	"slices"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	uuid "github.com/satori/go.uuid"
 
 	"bitmex-api/pkg/logger"
 	"bitmex-api/pkg/model"
@@ -135,11 +137,6 @@ func (h *UserWebSocketHandler) subscribeActions(user *model.User, action *subscr
 
 //nolint:varnamelen
 func (h *UserWebSocketHandler) Connect(c *gin.Context) {
-	userID, err := h.api.getUserIDFromHeader(c)
-	if err != nil {
-		logger.Errorf("can't get user from header", nil)
-	}
-
 	upgrader := websocket.Upgrader{
 		ReadBufferSize:  ReadBufferSize,
 		WriteBufferSize: WriteBufferSize,
@@ -149,17 +146,25 @@ func (h *UserWebSocketHandler) Connect(c *gin.Context) {
 
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		logger.Errorf("can't create connection:", userID)
+		return
+	}
+	defer conn.Close()
+
+	userID, err := h.api.getUserIDFromHeader(c)
+	if err != nil || userID == uuid.Nil {
+		b, err := json.Marshal(model.ErrUnauthorized)
+		if err != nil {
+			logger.Errorf("error marshal json ", err)
+		}
+		if err = conn.WriteMessage(websocket.TextMessage, b); err != nil {
+			logger.Errorf("error send message ", err)
+		}
 
 		return
 	}
 
-	defer func() {
-		h.api.userWSConn.Delete(conn)
-		conn.Close()
-	}()
-
 	h.api.userWSConn.Create(conn, userID)
+	defer h.api.userWSConn.Delete(conn)
 
 	logger.Infof("user connected %v", userID)
 

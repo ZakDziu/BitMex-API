@@ -44,3 +44,19 @@ POSTGRES_PASSWORD=postgres
 ```
 To check test coverage run
 ``go test -coverprofile=coverage.out ./... && go tool cover -html=coverage.out -o coverage.html && open coverage.html``
+
+
+# BitMex Price Subscription
+1. Login as a user, for example with Tech Admin credentials 
+2. Connect to the ``/connect`` websocket with Authorization header
+3. Subscript to the symbols that you want  with endpoint ``/api/v1/bit-mex/subscription``
+```bash
+curl --location --request PATCH 'localhost:8000/api/v1/bit-mex/subscription' \
+   --header 'Authorization: Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDM5MjI3NzgsImp0aSI6ImNiNjQyZmRlLThkZjgtNDk1NC1hMTRlLWZmODdlMDRjOTUzOCIsImlhdCI6MTcwMzg5Mzk3OCwiaWQiOiIyMDBlYTBkMS0wNjk5LTQzZDktOWRiOS05YzIyYThiNDI2ZjEiLCJSb2xlIjoiQURNSU4iLCJhY2Nlc3NfdXVpZCI6IjU1Yzk1MjE0LTg2ZGEtNGE0MC1hZTg1LTQyMjBhMDE0MmU1NyJ9.3yvWgrkw5BDUUFGOpVl2MTdpUBNvTpJvROmQip0OrvSJ1snSw7jxmwrtRtVEDFrtvzqY_0YzL1JMRVe4kshQtQ' \
+   --header 'Content-Type: application/json' \
+   --data '{
+   "action": "subscribe",
+   "symbols": []
+   }'
+   ```
+4. After that you can get notifications about all symbols price changing from ``/connect`` websocket
